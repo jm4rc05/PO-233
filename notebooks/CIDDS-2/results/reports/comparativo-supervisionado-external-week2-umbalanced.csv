@@ -1,0 +1,8 @@
+Algoritmo,Acurácia,Precisão,Recall (Normal),Recall (Suspeito),AUC
+Ada Boost,1.0,1.0,1.0,1.0,1.0
+Extra Trees,1.0,1.0,1.0,1.0,1.0
+Gradient Boosting,1.0,1.0,1.0,1.0,1.0
+Random Forest,1.0,1.0,1.0,1.0,1.0
+Decistion Tree,1.0,1.0,1.0,1.0,1.0
+KNN,1.0,1.0,1.0,1.0,1.0
+Bagging,0.9920634920634921,0.9872788030682768,1.0,0.9904761904761905,0.9952380952380953

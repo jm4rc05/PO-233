@@ -1,0 +1,413 @@
+\documentclass[twoside]{article}
+
+\usepackage{sbc-template}
+\usepackage[dvipsnames,usenames,table]{xcolor}
+\usepackage{array,booktabs}
+\newcounter{tablerow}
+\newcommand{\serie}{\parbox{7mm}{\scriptsize\raggedleft\stepcounter{tablerow}\arabic{tablerow}.}~}
+\usepackage{graphicx,url}
+\graphicspath{{./images/},{../notebooks/CIDDS-2/includes/images}}
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage[toc,numberedsection,acronym,translate=babel,acronymlists={hidden}]{glossaries-extra}
+\makenoidxglossaries
+\setabbreviationstyle[acronym]{short-nolong}
+\loadglsentries{./CC-JMG-GLS}
+\usepackage{multirow}
+\usepackage[multiple]{footmisc}
+\renewcommand\thefootnote{\textcolor{red}{\roman{footnote}}}
+\usepackage{hyperref}
+\usepackage[capitalize,noabbrev,nameinlink,brazilian]{cleveref}
+\usepackage[inline]{enumitem}
+\usepackage{inconsolata}
+\usepackage{calculator}
+\usepackage{orcid}
+\usepackage{tikz}
+\usepackage{forest}
+\tikzset{
+    darkp/.style={fill=purple!50!black},
+    lightp/.style={fill=purple!50}
+}
+\usepackage{fancyhdr}
+\pagestyle{plain}
+\usepackage{lastpage}
+\rfoot{\thepage \hspace{1pt} - \pageref{LastPage}}
+
+\raggedbottom
+
+\title{Aplicação de Aprendizado de Máquina na Detecção de Intrusão em Redes de Computadores}
+
+\author{
+    Carla Cursino\inst{1}\orcidIcon{0000-0002-7718-5897},
+    José Marcos Gomes\inst{1}\orcidIcon{0000-0001-9223-7512},
+    Ana Carolina Lorena\inst{1}\orcidIcon{0000-0002-6140-571X}, \\
+    Filipe Alves Neto Verri\inst{1}\orcidIcon{0000-0002-8240-5129},
+    Luiz Alberto Vieira Dias\inst{1}\orcidIcon{0000-0001-5958-8011}
+}
+
+\address{Instituto Tecnológico de Aeronáutica - ITA\\
+    Divisão da Ciência da Computação - IEC\\
+    % Praça Marechal Eduardo Gomes, 50 - Vila das Acácias, 12228-900\\
+    São José dos Campos/SP - Brasil    
+    \email{cursino@ita.br, gomesjm@ita.br, aclorena@ita.br, verri@ita.br, vdias@ita.br}
+}
+
+\begin{document} 
+
+\maketitle
+
+\begin{resumo}\footnotesize
+    Sistemas de detecção de intrusão, os chamados \gls{IDS}, trabalham com um sofisticado conjunto de regras e analisam o tráfego de rede em busca de padrões de ataques conhecidos. Os sistemas mais modernos utilizam técnicas de análise de tráfego de redes e procuram analisar o comportamento de usuários e agentes de rede.
+
+    Uma das limitações de tais sistemas é que as regras para detectar intrusão devem ser descritas de antemão para então, analisando o tráfego de rede, o sistema detectar anomalias.
+    
+    Propomos aplicar métodos de aprendizado de máquina para que o sistema possa antecipar comportamentos anômalos sem a necessidade de existirem regras previamente definidas.
+\end{resumo}\normalsize
+
+\section{Introdução}
+
+\glsfmtlong{IDS} são ``sistemas de vigilância e monitoração de ameaças computadorizado'' que possa detectar comportamentos ``Suspeitos'' tais como: ``acesso fora do horário usual'', ``frequência de uso anormal'', ``acesso anormal aos dados e programas de referência'', e ``accesso anormal do volume de dados de referência'' \cite{anderson1980computer}, e dada a importância vital de sistemas computadorizados em nossas vidas cada vez mais atenção tem sido dada à \gls{IDS}. Trata-se de um componente de grande importância em sistemas de segurança \cite{milenkoski2015evaluating} e de acordo com o \gls{IDC} \textit{Cybersecurity Spending Guide $2019$} o gasto mundial em segurança computacional excedeu os $120$ bilhões de dólares naquele ano \cite{idc_security_spending_2021}.
+
+Por outro lado, técnicas de invasão cada vez mais avançadas são desenvolvidas, e como consequência os métodos tradicionais baseados em assinaturas ou regras de especialistas não são suficientes \cite{radford2018network} para detectar invasões. Com o passar dos anos \glspl{IDS} baseados em técnicas de aprendizado de máquina tem sido desenvolvidas \cite{milenkoski2015evaluating}.
+
+Pretendemos com este trabalho avaliar duas abordagens de aprendizado e determinar o desempenho preditivo utilizando: aplicando algorítimos mais sofisticados, ou algorítimos mais simples e rápidos utilizando pequenas amostras de dados (``\textit{sub-sampling}'').
+
+\section{Revisão da Literatura}
+
+Encontramos na literatura duas abordagens diferentes utilizando aprendizado de máquina aplicada à \glspl{IDS}: o aprendizado supervisionado no qual modelos tentam distinguir entre o tráfego comum do malicioso, e o aprendizado não supervisionado que busca detectar anomalias dentro do tráfego.
+
+\subsection{Abordagens Supervisionadas, Semi-supervisionadas e Não Supervisionadas}
+
+O uso de aprendizado supervisionado tem sido amplamente utilizado em sistemas \gls{IDS} \cite{he2017machine} e este método busca classificar o tráfego de rede partindo de um conjunto de dados previamente rotulado de ``Normal'', ``Suspeito'' (e possivelmente ``desconhecido'').
+
+Soluções propostas para resolver o problema de detecção de anomalias por meio da identificação de ``\textit{outliers}'' e ``\textit{inliers}'' podem ser divididas nestas três sub-categorias \cite{aggarwal2016outlier}:
+
+\begin{enumerate}
+    \item \textbf{Supervisionadas} - \textit{Lidam com os casos onde o conjunto de dados de treinamento é fornecido com ambos os rótulos (``outliers'' e ``inliers'');}
+    \item \textbf{Semi-supervisionada} - \textit{Requer apenas uma classe ``pura'' rotulada ``inlier'' ou ``Normal'';}
+    \item \textbf{Não-supervisionada} - \textit{Lida com dados completamente não rotulados e misturados de ``inliers'' e ``outliers''.}
+\end{enumerate}
+
+Para este estudo privilegiamos algoritmos computacionalmente menos exigentes e que permitam futuramente implementar análise em tempo real de eventos de rede.
+
+\subsection{Modelos}
+
+\subsubsection{Lineares}
+
+Para funcionarem adequadamente num modelo linear, os dados precisam ser altamente correlacionados e quando os dados não o forem e altamente agrupados em certas regiões este método é ineficaz. Estudos sugerem que correlações podem ser específicas para determinadas localidades de dados e neste caso subespaços globais localizados por \gls{PCA} por exemplo são subótimas para detecção de \textit{outliers} \cite{aggarwal2000finding}.
+
+\subsubsection{Baseados em Proximidade}
+
+Num problema multidimensional como o de detecção de anomalias em eventos de redes de computadores os pontos acabam por se mostrarem equidistantes um do outro e assim o contraste de diferenças é perdido \cite{aggarwal2001surprising,hinneburg2000nearest}.
+
+\subsubsection{Probabilísticos}
+
+Modelos paramétricos são muito suscetíveis à ruidos e sobreajustes. A escolha incorreta de parâmetros pode levar à classificação de dados espúrios como \textit{outliers} ou quando o modelo é muito genérico o número de parâmetros necessários para descrevê-lo se torna proibitivo fazendo com que \textit{outliers} se percam em resultado de sobreajuste e na redução do sobreajuste para resolver o problema acabamos incorrendo em subajuste.
+
+\section{Materiais e Métodos}
+
+\subsection{Conjunto de Dados}
+
+Para este trabalho utilizamos o conjunto de dados \textbf{CIDDS} (``\textit{Coburg Intrusion Detection Data Sets}''), cujo conceito é o de criar um conjunto de dados para avaliação de sistemas de detecção de intrusão \cite{ring2017creation,ring2017flow}.
+
+O conjunto de dados é composto por dois grupos de arquivos, um de acessos de origem externa e outro de origem interna. Cada grupo está segmentado em arquivos de captura de dados contendo uma semana de observações, num total de oito arquivos no formato \textbf{CSV}.
+
+Dado o grande número de dados, trabalhamos com uma amostragem dos dados totais.
+
+\begin{table}\scriptsize
+    \centering
+    \begin{tabular}{rl}
+        \toprule
+        AMOSTRAS &  ARQUIVO \\
+        \midrule
+           172.838 & CIDDS-001-external-week1.csv \\
+           159.374 & CIDDS-001-external-week2.csv \\
+           153.027 & CIDDS-001-external-week3.csv \\
+           186.005 & CIDDS-001-external-week4.csv \\
+         8.451.521 & CIDDS-001-internal-week1.csv \\
+        10.310.734 & CIDDS-001-internal-week2.csv \\
+         6.349.784 & CIDDS-001-internal-week3.csv \\
+         6.175.898 & CIDDS-001-internal-week4.csv \\
+        31.959.181 & TOTAL \\
+        \bottomrule
+    \end{tabular}
+    \caption{Conjuntos de dados CIDDS}
+    \label{tab:tab:dataset}
+\normalsize\end{table}
+
+\begin{itemize}
+    \item \texttt{Date first seen~~ - object } - Data e hora do início da sessão
+    \item \texttt{Duration~~~~~~~~~ - float64} - Duração da sessão (em milisegundos)
+    \item \texttt{Proto~~~~~~~~~~~~ - object } - Protocolo
+    \item \texttt{Src IP Addr~~~~~~ - object } - \glsfmtshort{IP} de origem
+    \item \texttt{Src Pt~~~~~~~~~~~ - int64~~} - Porta de origem
+    \item \texttt{Dst IP Addr~~~~~~ - object } - \glsfmtshort{IP} de destino
+    \item \texttt{Dst Pt~~~~~~~~~~~ - float64} - Porta de destino
+    \item \texttt{Packets~~~~~~~~~~ - int64~~} - Número de pacotes
+    \item \texttt{Bytes~~~~~~~~~~~~ - object } - Número de \glspl{byte}
+    \item \texttt{Flows~~~~~~~~~~~~ - int64~~} - Quantidade de fluxos de transmissão
+    \item \texttt{Flags~~~~~~~~~~~~ - object } - Indicadores \glsfmtshort{TCP}
+    \item \texttt{ToS~~~~~~~~~~~~~~ - int64~~} - Tipo de serviço
+    \item \texttt{class~~~~~~~~~~~~ - object } - Classificação do ataque
+    \item \texttt{attackType~~~~~~~ - object } - Tipo de ataque
+    \item \texttt{attackID~~~~~~~~~ - object } - Identificação do ataque
+    \item \texttt{attackDescription - object } - Descrição do ataque
+\end{itemize}
+
+\subsection{Técnicas}
+
+Dada a natureza desbalanceada dos dados classificados (ver \cref{fig:umbalanced-class}), foi aplicado tanto ``\textit{Upsample}'' da classe minoritária quanto ``\textit{Downsample}'' da classe majoritária para fins comparativos do desempenho dos algoritmos testados.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\textwidth]{distribuicao-internal-week1-umbalanced-CLASS.jpg}
+    \caption{Distribuição da classe}\label{fig:umbalanced-class}
+\end{figure}
+
+\section{Experimentos e Resultados}
+
+Curva ``\textit{Receiver Operating Characteristic}'' (\textbf{ROC}) é uma ferramenta importante de diagnóstico do desempenho de algoritmos de aprendizado de máquina que nos mostra a taxa de verdadeiros positivos contra falsos negativos. A área sob a curva \textbf{ROC} é chamada de \textbf{AUC} é uma medida de previsibilidade do algorítmo. Um \textbf{AUC} mais alto indica uma previsão mais apurada.
+
+\subsection{Exploração de Dados}
+
+\subsubsection{Atributos Mais Significativos}
+
+\begin{enumerate}
+    \setcounter{enumi}{2}
+    \item \textit{Proto} - Protocolos de comunicação
+    \setcounter{enumi}{10}
+    \item \textit{Flags} - Indicadores \glsfmtshort{TCP} - cada \gls{bit} dos $16$ (apenas $8$ estão em uso) são reservados para este atributo e identificados como: 
+        \begin{itemize}
+            \item \textbf{CWR} - \gls{bit} $7$ - ``\textit{Congestion Window Reduction}'' - identificado pela letra \textbf{C}
+            \item \textbf{ECE} - \gls{bit} $6$ - ``\textit{ECN (Explicit Congestion Notification) Capable}'' - identificado pela letra \textbf{E}
+            \item \textbf{URG} - \gls{bit} $5$ - ``\textit{Urgent}'' - identificado pela letra \textbf{U}
+            \item \textbf{ACK} - \gls{bit} $4$ - ``\textit{Acknowledgement}'' - identificado pela letra \textbf{A}
+            \item \textbf{PSH} - \gls{bit} $3$ - ``\textit{Push}'' - identificado pela letra \textbf{P}
+            \item \textbf{RST} - \gls{bit} $2$ - ``\textit{Reset}'' - identificado pela letra \textbf{R}
+            \item \textbf{SYN} - \gls{bit} $1$ - ``\textit{Synchronization}'' - identificado pela letra \textbf{S}
+            \item \textbf{FIN} - \gls{bit} $0$ - ``\textit{Finished}'' - identificado pela letra \textbf{F}
+        \end{itemize}
+        Valores que estão fora do padrão determinados pela \gls{IETF} e documentados pelo \gls{IEEE} no conjunto de dados deverão ser traduzidos:
+        \begin{itemize}
+            \item \texttt{0xDB} - \texttt{11011011} - \texttt{CE.AP.SF}
+            \item \texttt{0xD2} - \texttt{11010010} - \texttt{CE.A..S.}
+            \item \texttt{0xC2} - \texttt{11000010} - \texttt{CE....S.}
+            \item \texttt{0xDA} - \texttt{11011010} - \texttt{CE.AP.S.}
+            \item \texttt{0xD7} - \texttt{11010111} - \texttt{CE.A.RSF}
+            \item \texttt{0x53} - \texttt{01010011} - \texttt{.E.A..SF}
+            \item \texttt{0xDF} - \texttt{11011111} - \texttt{CE.APRSF}
+            \item \texttt{0xD6} - \texttt{11010110} - \texttt{CE.A.RS.}
+            \item \texttt{0xD3} - \texttt{11010011} - \texttt{CE.A..SF}
+        \end{itemize}
+        \setcounter{enumi}{12}
+    \item \textit{class} - Classificação (atributo alvo)
+\end{enumerate}
+
+Os protocolos \gls{ICMP} \cite{postel1981ietf} e \gls{GRE} \cite{farinacci2000rfc2784} não são geralmente iniciados ou recebidos em comunicações normais e podem ser aplicados por vetores de ataque e não podem ser negligenciados. Já os protocolos \gls{TCP} \cite{postel1981transmission} e \gls{UDP} \cite{protocol1980rfc} representam toda a comunicação via Internet com que os usuários costumam interagir normalmente. Endereços e portas \gls{IP} também serão desconsiderados, mesmo porque atacantes costumam mascarar seus endereços e o uso de \gls{NAT} pela maioria das redes para publicar serviços externos limita a utilidade de analisar esta informação \cite{deabordagem}.
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/CIDDS-001-internal-week1-stats-before-pre-processed.tex}
+    \caption{Estatísticas dos dados brutos}
+    \label{tab:val_stat_before_pre}
+\normalsize\end{table}  
+
+\subsubsection{Análise de Dispersão e Distribuição}
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/CIDDS-001-internal-week1-stats-kurt.tex}
+    \caption{Curtose}
+    \label{tab:kurt}
+\normalsize\end{table}  
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/CIDDS-001-internal-week1-stats-skew.tex}
+    \caption{Obliquidade}
+    \label{tab:skew}
+\normalsize\end{table}  
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/CIDDS-001-internal-week1-stats-mode.tex}
+    \caption{Moda}
+    \label{tab:mode}
+\normalsize\end{table}  
+
+Comparando a curtose (ver \cref{tab:kurt}) com a média e a mediana (ver \cref{tab:umbalanced_stat_after_pre}), observamos aquela bem acima destas e um grande número de objetos ocorrem frequentemente fora da distribuição ``Normal''. A obliquidade de todos estes atributos é positiva (ver \cref{tab:skew}), e a maioria dos valores tendem ao mínimo e está associada ao grande desvio padrão observado nos atributos ``\textit{Duration}'' e ``\textit{Bytes}''.
+
+\subsection{Pré-processamento}
+
+Tratamos os dados de forma uniforme para todos os algoritmos testados e geramos três conjuntos de dados:
+
+\begin{enumerate}
+    \item Não balanceado - onde foram preservados os dados originais e aplicadas apenas normalização de valores;
+    \item \textit{Upsample} - onde aplicamos \textit{Upsampling} da classe minoritária; e
+    \item \textit{Downsample} - onde aplicamos \textit{Downsampling} da classe majoritária.
+\end{enumerate}
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/CIDDS-001-internal-week1-umbalanced-stats-after-pre-processed.tex}
+    \caption{Estatísticas após o pré-processamento (dados originais)}
+    \label{tab:umbalanced_stat_after_pre}
+\normalsize\end{table}  
+
+\subsection{Experimentos}
+
+Nas \cref{tab:superv-umbalanced,tab:superv-upsample,tab:superv-downsample} comparamos os resultados dos experimentos.
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/comparativo-supervisionado-internal-week1-umbalanced.tex}
+    \caption{Semana 1 - não balanceado}
+    \label{tab:superv-umbalanced}
+\normalsize\end{table}  
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/comparativo-supervisionado-internal-week1-upsample.tex}
+    \caption{Semana 1 - ``\textit{Upsampling}''}
+    \label{tab:superv-upsample}
+\normalsize\end{table}  
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/comparativo-supervisionado-internal-week1-downsample.tex}
+    \caption{Semana 1 - ``\textit{Downsampling}''}
+    \label{tab:superv-downsample}
+\normalsize\end{table}
+
+\begin{table}\scriptsize
+    \centering
+    \input{../notebooks/CIDDS-2/includes/reports/comparativo-nao-supervisionado-internal-week1-umbalanced.tex}
+    \caption{Semana 1 - não supervisionado}
+    \label{tab:nao-superv-umbalanced}
+\normalsize\end{table}
+
+Aplicamos sobre os conjunto de dados os seguintes algoritmos, divididos em dois grupos, os \textbf{Supervisionados} (onde selecionamos 7 algoritmos, sendo cinco \textit{Ensembles}, 1 de \textit{Árvore} de decisão, e 1 de \textit{Proximidade}) e um \textbf{Não supervisionado} dentro do subgrupo de \textit{Support Vector Machine} (ver \cref{tab:alg}). O principal fator de escolha dos algoritmos é o de baixo custo computacional, e assim sendo, desprezamos Redes Neurais e outros que podem vir a ser computacionalmente intensos.
+
+\begin{table}\scriptsize
+    \centering
+    \begin{tabular}{l >{\raggedright\arraybackslash}p{120mm}}
+        \toprule
+            Algoritmo &  Discussão \\
+        \midrule
+        \textbf{Supervisionados} \\
+        ~ \textit{Ensembles} \\
+        ~ ~ \textbf{Ada Boost} & \textit{Meta-estimador que inicia acoplando um classificador no conjunto de dados original e depois acrescenta cópias adicionais do classificador no mesmo conjunto de dados, onde os pesos das instâncias classificadas incorretamente são ajustados de tal forma que os classificadores subsequentes se concentram mais nos casos difíceis} \\
+        ~ ~ \textbf{Bagging} & \textit{Meta-estimador que adapta classificadores de base à subconjuntos aleatórios do conjunto de dados original e em seguida agrega suas previsões individuais (seja por votação ou por média) para formar uma previsão final} \\
+        ~ ~ \textbf{Extra Trees} & \textit{Meta-estimador que se adapta a várias árvores de decisão aleatórias (também conhecidas como árvores extras) em várias subamostras do conjunto de dados e usa a média para melhorar a precisão preditiva e o controle do ajuste excessivo} \\
+        ~ ~ \textbf{Gradient Boosting} & \textit{Modelo aditivo em um estágio avançado; permite a otimização de funções de perdas arbitrárias diferenciáveis} \\
+        ~ ~ \textbf{Random Forest} & \textit{Meta-estimador que se adapta a vários classificadores de árvore de decisão em várias subamostras do conjunto de dados e usa a média para melhorar a precisão preditiva e o controle do excesso de ajuste} \\
+        \hline
+        ~ \textit{Árvore} \\
+        ~ ~ \textbf{Decision Tree} & \textit{Classificador de árvore de decisão} \\
+        \hline
+        ~ \textit{Proximidade} \\
+        ~ ~ \textbf{KNN} & \textit{Classificador que implementa voto dos vizinhos mais próximos} \\
+        \bottomrule
+        \textbf{Não supervisionados} \\
+        ~ \textit{Support Vector Machine} \\
+        ~ ~ \textbf{One Class SVM} & \textit{Algorítmo sensível à pontos fora da curva e utilizado para detecção de anomalias} \\
+        \bottomrule
+        \end{tabular}
+    \caption{Algoritmos aplicados neste estudo}
+    \label{tab:alg}
+\normalsize\end{table}
+
+\section{Discussão}
+
+Os resultados obtidos e listados nas \cref{tab:superv-umbalanced,tab:superv-upsample,tab:superv-downsample} mostram uma ``\textit{acurácia}'' ($ACC$) bastante próxima em todos os modelos experimentados (entre $98.6\%$ com \textbf{Ada Boost} a até $99.9\%$ com \textbf{KNN}, todos aplicados sobre dados não balanceados). 
+    
+Comparando os algoritmos entre si, \textbf{Extra Trees} se destacou aplicada à dados balanceados com \textit{Upsampling} e \textit{Downsampling} ou não balanceados, com $ACC$ de $99.5\%$, $99.7\%$ e $99.8\%$ respectivamente. Curiosamente \textbf{Gradient Boosting} destacou-se aplicando-se \textit{Upsampling} aos dados, com $99.5\%$, porém ficou ligeiramente aquém das demais aos aplicarmos \textit{Downsampling}, com $99.1\%$.
+
+No geral todos os algoritmos se mostraram consistentes e indiferentes ao tratamento às classes das observações da amostra de dados e o impacto da distribuição de classes não foi significativo sobre os algoritmos experimentados. Creditamos isto à natureza do conjunto de dados que não possui um espectro muito variado de ataques disponíveis (para gerar o tráfego malicioso são simulados ataques do tipo \textit{Denial of Service (DoS)}, ataques de força bruta e escrutíno de portas \cite{ring2017creation,ring2017flow}).
+
+Comparando o desempenho com o algoritmo não supervisionado \textbf{One Class SVM} aplicado aos dados não balanceados, que pode ser observado na \cref{tab:nao-superv-umbalanced}, atingiu $ACC$ de $80.5\%$ (a mais baixa) a até $91.7\%$ com diferentes \textit{kernels} (tanto ``\textbf{Linear}'' quanto ``\textbf{Sigmoid}'' apresentaram o mesmo desempenho, enquanto que ``\textbf{RBF}'' foi inferior).
+
+A pontuação $F_1$ é outra medida de verificação da ``\textit{acurácia}'' de um modelo, dada pela média harmônica entre a precisão e \textit{recall}:
+
+\begin{align*}
+    F_1 = \frac{TP}{TP + \frac{1}{2}(FP + FN)} \text{,}
+\end{align*}
+
+\noindent onde:
+
+\begin{itemize}
+    \item $TP$: \textit{True Positive} - Verdadeiro Positivo;
+    \item $FP$: \textit{False Positive} - Falso Positivo; e
+    \item $FN$: \textit{False Negative} - Falso Negativo.
+\end{itemize}
+
+A pontuação $F_1$ de observações classificadas como ``\textbf{Suspeitas}'' é significativamente inferior ($36.5\%$ usando ``\textbf{RBF}'' e $28.2\%$ para os demais ``\textit{kernels}'') à das classificadas como ``\textbf{Normais}'' ($88.5\%$ ``\textbf{RBF}'' e $95.6\%$ para os demais ``\textit{kernels}''), o que indica uma tendência do modelo a identificar como ``Suspeitos'' eventos de classe ``Normal''.
+
+Aplicamos o coeficiente de correlação \textit{Matthews} como uma medida da qualidade da classificação binária de nosso modelo. Esta medida leva em consideração verdadeiros e falsos positivos e negativos e é considerada uma medida balanceada em classes desbalanceadas, que retorna valores entre $+1$ (uma previsão perfeita) e $-1$ (discordância total entre observação e previsão), enquanto que $0$ indica que a previsão é tão boa quanto uma previsão aleatória \cite{matthews1975comparison}:
+
+\begin{align*}
+    | MCC | = \sqrt{\frac{x^2}{n}} \text{,}
+\end{align*}
+
+\noindent onde $n$ é número total de observações, ou a partir da matriz de confusão:
+
+\begin{align*}
+    MCC = \frac{TP \times TN - FP \times FN}{\sqrt{(TP + FP) \times (TP + FN) \times (TN + FP) \times (TN + FN)}} \text{,}
+\end{align*}
+
+\noindent onde:
+
+\begin{itemize}
+    \item $TP$: \textit{True Positive} - Verdadeiro Positivo;
+    \item $TN$: \textit{True Negative} - Verdadeiro Negativo;
+    \item $FP$: \textit{False Positive} - Falso Positivo; e
+    \item $FN$: \textit{False Negative} - Falso Negativo.
+\end{itemize}
+
+A pontuação $MCC$ nos dá o ``\textbf{produto - momento}'' do coeficiente de correlação \textit{Pearson} (diferente do próprio coeficiente de correlação \textit{Pearson} que mede a relação entre os coeficientes), que com o valor $30.4\%$ (para ambas as classes) usando ``\textit{kernel}'' ``\textbf{RBF}'' e $33.2\%$ para os demais é interpretado como uma previsão ``\textbf{Fraca}'' e próxima de ``\textit{Negligenciável}'' (ver \cref{tab:mcc}) \cite{powers2020evaluation}.
+
+\begin{table}\scriptsize
+    \centering
+    \begin{tabular}{rl}
+        \toprule
+            MCC &  Interpretação \\
+        \midrule
+        $[0.0, 0.3)$ & \textit{Negligenciável} \\
+        $[0.3, 0.5)$ & \textit{Fraca} \\
+        $[0.5, 0.7)$ & \textit{Moderada} \\
+        $[0.7, 0.9)$ & \textit{Forte} \\
+        $[0.9, 1.0]$ & \textit{Muito Forte} \\
+        \bottomrule
+        \end{tabular}
+    \caption{Interpretação do coeficiente de correlação \textit{Matthews}}
+    \label{tab:mcc}
+\normalsize\end{table}
+
+\section{Conclusões e trabalhos futuros}
+
+Apresentamos uma análise de modelos de aprendizado aplicado ao conjunto de dados de estudos em intrusão de redes \textbf{CIDDS}. Obtivemos sucesso na identificação de eventos de invasão com $ACC$ de $99\%$ utilizando modelos supervisionados. 
+
+As diferenças entre os conjuntos de dados tratados ou não com \textit{Upsampling} e \textit{Downsampling} não foram significativas o suficiente para justificarem este tratamento que pode ser custoso para este caso particular e uma análise detalhada de conjuntos de dados não balanceados deveria ser aplicada antes \cite{barella2021assessing}.
+
+Comparamos com um modelo de detecção não supervisionado que apresentou uma acurácia de $80\%$, porém como podemos observar após uma análise mais detalhada utilizando o coeficiente de correlaçao \textit{Matthews}, atingiu uma pontuação entre $30\%$ e $33\%$, considerado um fator de previsão ``\textbf{Fraco}''. 
+
+Modelos de detecção utilizando algoritmos não supervisionados podem vir a ser explorado com o intuito de obtermos índices de acurácia próximos dos modelos preditivos supervisionados, e com fatores de previsão melhores que os apresentados pelo algoritmo \textbf{One Class SVM} neste exercício.
+
+\footnotesize{
+    \printnoidxglossary[type=acronym]
+    \printnoidxglossary[type=main]
+}\normalsize
+
+\section{Referências}
+
+    \bibliographystyle{acm}
+    \begingroup
+        \renewcommand{\section}[2]{}
+        \footnotesize{
+            \bibliography{CC-JMG}
+        }\normalsize
+    \endgroup
+
+\end{document}
