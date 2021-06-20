@@ -10,7 +10,7 @@
 
 #### Pastas:
 * `notebooks` - Notebook jupyter-lab com experimentos
-    * `data` - Dados CIDDS originais
+    * `data` - Dados CIDDS
     * `includes` - Resultados obtidos com dados pré-processados e relatórios dos experimentos em **TeX** com imagens
     * `results` - Todos os resultados de todos os experimentos
     * `results-partial` - Resultados parciais utilizados para formatar o relatório final
@@ -25,3 +25,5 @@
     * `CC-JMG.bib` - Bibliografia
     * `CC-JMG-GLS.tex` - Glossário
     * `CC-JMG-rev4.tex` - Relatório
+    * `CC-JMG-Apresentacao` - Apresentação
+    * https://youtu.be/ypqm1KGpa4k - Link para o vídeo da apresentação no YouTube
