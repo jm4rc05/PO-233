@@ -68,15 +68,15 @@
 
 \section{Introdução}
 
-\glsfmtlong{IDS} são ``sistemas de vigilância e monitoração de ameaças computadorizado'' que possa detectar comportamentos ``Suspeitos'' tais como: ``acesso fora do horário usual'', ``frequência de uso anormal'', ``acesso anormal aos dados e programas de referência'', e ``accesso anormal do volume de dados de referência'' \cite{anderson1980computer}, e dada a importância vital de sistemas computadorizados em nossas vidas cada vez mais atenção tem sido dada à \gls{IDS}. Trata-se de um componente de grande importância em sistemas de segurança \cite{milenkoski2015evaluating} e de acordo com o \gls{IDC} \textit{Cybersecurity Spending Guide $2019$} o gasto mundial em segurança computacional excedeu os $120$ bilhões de dólares naquele ano \cite{idc_security_spending_2021}.
+\glsfmtlong{IDS}. Estes ``sistemas de vigilância e monitoração de ameaças computadorizados'' podem detectar comportamentos ``Suspeitos'' tais como: ``acesso fora do horário usual'', ``frequência de uso além do costumeiro'', ``acesso não usual à dados e programas'', e ``accesso excessivo no volume de dados'' \cite{anderson1980computer}. Dada a importância vital de sistemas computadorizados em nossas vidas, cada vez mais atenção tem sido dada à ferramentas \gls{IDS}, tornando este um componente de grande importância em sistemas de segurança \cite{milenkoski2015evaluating}.
 
-Por outro lado, técnicas de invasão cada vez mais avançadas são desenvolvidas, e como consequência os métodos tradicionais baseados em assinaturas ou regras de especialistas não são suficientes \cite{radford2018network} para detectar invasões. Com o passar dos anos \glspl{IDS} baseados em técnicas de aprendizado de máquina tem sido desenvolvidas \cite{milenkoski2015evaluating}.
+Já as técnicas de invasão se apresentam cada vez mais avançadas, e como consequência os métodos tradicionais baseados em assinaturas ou regras de especialistas não são suficientes \cite{radford2018network} para detectar invasões. Com o passar dos anos, ferramentas \glspl{IDS} baseados em técnicas de aprendizado de máquina tem sido desenvolvidas \cite{milenkoski2015evaluating}.
 
-Pretendemos com este trabalho avaliar duas abordagens de aprendizado e determinar o desempenho preditivo utilizando: aplicando algorítimos mais sofisticados, ou algorítimos mais simples e rápidos utilizando pequenas amostras de dados (``\textit{sub-sampling}'').
+Pretendemos com este trabalho avaliar abordagens de aprendizado de máquina e determinar o desempenho de sistemas preditivos.
 
 \section{Revisão da Literatura}
 
-Encontramos na literatura duas abordagens diferentes utilizando aprendizado de máquina aplicada à \glspl{IDS}: o aprendizado supervisionado no qual modelos tentam distinguir entre o tráfego comum do malicioso, e o aprendizado não supervisionado que busca detectar anomalias dentro do tráfego.
+Encontramos na literatura abordagens diferentes utilizando aprendizado de máquina aplicada à \glspl{IDS}: o aprendizado supervisionado no qual modelos tentam distinguir entre o tráfego comum do malicioso, e o aprendizado não supervisionado que busca detectar anomalias dentro do tráfego, e o aprendizado semi-supervisionado, onde uma grande quantidade de dados não classificados está disponível juntamento com os dados previamente classificados. 
 
 \subsection{Abordagens Supervisionadas, Semi-supervisionadas e Não Supervisionadas}
 
@@ -90,7 +90,27 @@ Soluções propostas para resolver o problema de detecção de anomalias por mei
     \item \textbf{Não-supervisionada} - \textit{Lida com dados completamente não rotulados e misturados de ``inliers'' e ``outliers''.}
 \end{enumerate}
 
-Para este estudo privilegiamos algoritmos computacionalmente menos exigentes e que permitam futuramente implementar análise em tempo real de eventos de rede.
+\begin{table}\scriptsize
+    \centering
+    \begin{tabular}{l l  >{\raggedright\arraybackslash}p{100mm}}
+        \toprule
+        MÉTODO & ABORDAGEM & DESCRIÇÃO \\
+        \midrule
+        \textit{Extra Trees} & Supervisionado & Implementa um meta estimador treinado sobre um número de árvores de decisão aleatórias (``\textit{extra trees}'') sobre vários subconjuntos dos dados e calcula a média para melhorar a acurácia de previsão e controlar sobreajustamento. \\
+        \textit{KNN} & Supervisionado & Classificador implementando votação em $k$ vizinhos mais próximos. \\
+        Bagging & Supervisionado & Um meta-classificador composto que agrupa classificadores de base a subconjuntos aleatórios dos dados originais e agrega as previsões individuais (por votação ou por média) para formar uma previsão final. \\
+        \textit{Random Forest} & Supervisionado & Meta classificador que agrupa vários classificadores de árvores de decisão em várias subamostras do conjunto de dados e usa a média para melhorar a precisão e o controle do excesso de ajustes. \\
+        \textit{Decision Tree} & Supervisionado & Método que prevê o valor de uma variável alvo, aprendendo regras simples de decisão inferidas a partir das características dos dados. \\
+        \textit{Gradient Boosting} & Supervisionado & Constrói um modelo aditivo de modo progressivo que permite a otimização de funções de perda diferenciadas arbitrárias. \\
+        \textit{Ada Boost} & Supervisionado & Meta-classificador que se inicia com um classificador no conjunto de dados original e depois adiciona cópias do classificador sobre o mesmo conjunto de dados, onde os pesos das instâncias classificadas incorretamente são ajustados de tal forma que os classificadores subsequentes se concentram mais nos casos difíceis. \\
+        \textit{One Class SVM} & Não-supervisionado & Detector de pontos fora da curva não supervisionado que implementa Máquina de Suporte à Vetores. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Métodos abordados neste estudo}
+    \label{tab:metodos}
+\normalsize\end{table}
+
+Para este estudo previlegiamos algoritmos computacionalmente menos exigentes e que viabilizariam a implementação de  análise em tempo real de eventos de rede.
 
 \subsection{Modelos}
 
@@ -110,7 +130,7 @@ Modelos paramétricos são muito suscetíveis à ruidos e sobreajustes. A escolh
 
 \subsection{Conjunto de Dados}
 
-Para este trabalho utilizamos o conjunto de dados \textbf{CIDDS} (``\textit{Coburg Intrusion Detection Data Sets}''), cujo conceito é o de criar um conjunto de dados para avaliação de sistemas de detecção de intrusão \cite{ring2017creation,ring2017flow}.
+Para este trabalho utilizamos o conjunto de dados \textbf{CIDDS-001} (``\textit{Coburg Intrusion Detection Data Sets}''), cujo conceito é o de criar um conjunto de dados para avaliação de sistemas de detecção de intrusão \cite{ring2017creation,ring2017flow}.
 
 O conjunto de dados é composto por dois grupos de arquivos, um de acessos de origem externa e outro de origem interna. Cada grupo está segmentado em arquivos de captura de dados contendo uma semana de observações, num total de oito arquivos no formato \textbf{CSV}.
 
@@ -158,7 +178,7 @@ Dado o grande número de dados, trabalhamos com uma amostragem dos dados totais.
 
 \subsection{Técnicas}
 
-Dada a natureza desbalanceada dos dados classificados (ver \cref{fig:umbalanced-class}), foi aplicado tanto ``\textit{Upsample}'' da classe minoritária quanto ``\textit{Downsample}'' da classe majoritária para fins comparativos do desempenho dos algoritmos testados.
+Para tratar a natureza desbalanceada dos dados classificados (ver \cref{fig:umbalanced-class}), foi aplicado tanto ``\textit{Upsample}'' da classe minoritária quanto ``\textit{Downsample}'' da classe majoritária e os desempenhos dos métodos de classificação foram comparados.
 
 \begin{figure}
     \centering
@@ -288,46 +308,17 @@ Nas \cref{tab:superv-umbalanced,tab:superv-upsample,tab:superv-downsample} compa
     \label{tab:nao-superv-umbalanced}
 \normalsize\end{table}
 
-Aplicamos sobre os conjunto de dados os seguintes algoritmos, divididos em dois grupos, os \textbf{Supervisionados} (onde selecionamos 7 algoritmos, sendo cinco \textit{Ensembles}, 1 de \textit{Árvore} de decisão, e 1 de \textit{Proximidade}) e um \textbf{Não supervisionado} dentro do subgrupo de \textit{Support Vector Machine} (ver \cref{tab:alg}). O principal fator de escolha dos algoritmos é o de baixo custo computacional, e assim sendo, desprezamos Redes Neurais e outros que podem vir a ser computacionalmente intensos.
-
-\begin{table}\scriptsize
-    \centering
-    \begin{tabular}{l >{\raggedright\arraybackslash}p{120mm}}
-        \toprule
-            Algoritmo &  Discussão \\
-        \midrule
-        \textbf{Supervisionados} \\
-        ~ \textit{Ensembles} \\
-        ~ ~ \textbf{Ada Boost} & \textit{Meta-estimador que inicia acoplando um classificador no conjunto de dados original e depois acrescenta cópias adicionais do classificador no mesmo conjunto de dados, onde os pesos das instâncias classificadas incorretamente são ajustados de tal forma que os classificadores subsequentes se concentram mais nos casos difíceis} \\
-        ~ ~ \textbf{Bagging} & \textit{Meta-estimador que adapta classificadores de base à subconjuntos aleatórios do conjunto de dados original e em seguida agrega suas previsões individuais (seja por votação ou por média) para formar uma previsão final} \\
-        ~ ~ \textbf{Extra Trees} & \textit{Meta-estimador que se adapta a várias árvores de decisão aleatórias (também conhecidas como árvores extras) em várias subamostras do conjunto de dados e usa a média para melhorar a precisão preditiva e o controle do ajuste excessivo} \\
-        ~ ~ \textbf{Gradient Boosting} & \textit{Modelo aditivo em um estágio avançado; permite a otimização de funções de perdas arbitrárias diferenciáveis} \\
-        ~ ~ \textbf{Random Forest} & \textit{Meta-estimador que se adapta a vários classificadores de árvore de decisão em várias subamostras do conjunto de dados e usa a média para melhorar a precisão preditiva e o controle do excesso de ajuste} \\
-        \hline
-        ~ \textit{Árvore} \\
-        ~ ~ \textbf{Decision Tree} & \textit{Classificador de árvore de decisão} \\
-        \hline
-        ~ \textit{Proximidade} \\
-        ~ ~ \textbf{KNN} & \textit{Classificador que implementa voto dos vizinhos mais próximos} \\
-        \bottomrule
-        \textbf{Não supervisionados} \\
-        ~ \textit{Support Vector Machine} \\
-        ~ ~ \textbf{One Class SVM} & \textit{Algorítmo sensível à pontos fora da curva e utilizado para detecção de anomalias} \\
-        \bottomrule
-        \end{tabular}
-    \caption{Algoritmos aplicados neste estudo}
-    \label{tab:alg}
-\normalsize\end{table}
+Aplicamos sobre os conjunto de dados os algoritmos (ver \cref{tab:metodos}), divididos em dois grupos, os \textbf{Supervisionados} (onde selecionamos 7 algoritmos, sendo cinco \textit{Ensembles}, 1 de \textit{Árvore} de decisão, e 1 de \textit{Proximidade}) e um \textbf{Não supervisionado} dentro do subgrupo de \textit{Support Vector Machine}. O principal fator de escolha dos algoritmos é o de baixo custo computacional, e assim sendo, desprezamos Redes Neurais e outros que podem vir a ser computacionalmente intensos.
 
 \section{Discussão}
 
 Os resultados obtidos e listados nas \cref{tab:superv-umbalanced,tab:superv-upsample,tab:superv-downsample} mostram uma ``\textit{acurácia}'' ($ACC$) bastante próxima em todos os modelos experimentados (entre $98.6\%$ com \textbf{Ada Boost} a até $99.9\%$ com \textbf{KNN}, todos aplicados sobre dados não balanceados). 
     
-Comparando os algoritmos entre si, \textbf{Extra Trees} se destacou aplicada à dados balanceados com \textit{Upsampling} e \textit{Downsampling} ou não balanceados, com $ACC$ de $99.5\%$, $99.7\%$ e $99.8\%$ respectivamente. Curiosamente \textbf{Gradient Boosting} destacou-se aplicando-se \textit{Upsampling} aos dados, com $99.5\%$, porém ficou ligeiramente aquém das demais aos aplicarmos \textit{Downsampling}, com $99.1\%$.
+Comparando os algoritmos entre si, \textbf{Extra Trees} se destacou aplicada à dados balanceados com \textit{Upsampling} e \textit{Downsampling} ou não balanceados, com acurácia de $99.5\%$, $99.7\%$ e $99.8\%$ respectivamente. Curiosamente \textbf{Gradient Boosting} destacou-se aplicando-se \textit{Upsampling} aos dados, com $99.5\%$, porém ficou ligeiramente aquém das demais aos aplicarmos \textit{Downsampling}, com $99.1\%$.
 
 No geral todos os algoritmos se mostraram consistentes e indiferentes ao tratamento às classes das observações da amostra de dados e o impacto da distribuição de classes não foi significativo sobre os algoritmos experimentados. Creditamos isto à natureza do conjunto de dados que não possui um espectro muito variado de ataques disponíveis (para gerar o tráfego malicioso são simulados ataques do tipo \textit{Denial of Service (DoS)}, ataques de força bruta e escrutíno de portas \cite{ring2017creation,ring2017flow}).
 
-Comparando o desempenho com o algoritmo não supervisionado \textbf{One Class SVM} aplicado aos dados não balanceados, que pode ser observado na \cref{tab:nao-superv-umbalanced}, atingiu $ACC$ de $80.5\%$ (a mais baixa) a até $91.7\%$ com diferentes \textit{kernels} (tanto ``\textbf{Linear}'' quanto ``\textbf{Sigmoid}'' apresentaram o mesmo desempenho, enquanto que ``\textbf{RBF}'' foi inferior).
+Comparando o desempenho com o algoritmo não supervisionado \textbf{One Class SVM} aplicado aos dados não balanceados, que pode ser observado na \cref{tab:nao-superv-umbalanced}, atingiu acurácia de $80.5\%$ (a mais baixa) a até $91.7\%$ com diferentes \textit{kernels} (tanto ``\textbf{Linear}'' quanto ``\textbf{Sigmoid}'' apresentaram o mesmo desempenho, enquanto que ``\textbf{RBF}'' foi inferior), onde $\nu = 0.125$ para todos os casos.
 
 A pontuação $F_1$ é outra medida de verificação da ``\textit{acurácia}'' de um modelo, dada pela média harmônica entre a precisão e \textit{recall}:
 
@@ -387,7 +378,7 @@ A pontuação $MCC$ nos dá o ``\textbf{produto - momento}'' do coeficiente de c
 
 \section{Conclusões e trabalhos futuros}
 
-Apresentamos uma análise de modelos de aprendizado aplicado ao conjunto de dados de estudos em intrusão de redes \textbf{CIDDS}. Obtivemos sucesso na identificação de eventos de invasão com $ACC$ de $99\%$ utilizando modelos supervisionados. 
+Apresentamos uma análise de modelos de aprendizado aplicado ao conjunto de dados de estudos em intrusão de redes \textbf{CIDDS}. Obtivemos sucesso na identificação de eventos de invasão com uma acurácia de $99\%$ utilizando modelos supervisionados. 
 
 As diferenças entre os conjuntos de dados tratados ou não com \textit{Upsampling} e \textit{Downsampling} não foram significativas o suficiente para justificarem este tratamento que pode ser custoso para este caso particular e uma análise detalhada de conjuntos de dados não balanceados deveria ser aplicada antes \cite{barella2021assessing}.
 
